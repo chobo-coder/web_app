@@ -13,6 +13,7 @@ function templatehtml(title, list, body) {
         <body>
             <h1><a href="/">WEB</a>
             ${list}
+            <a href = "/create">create</a>
             ${body}   
         </body>
     </html>
@@ -58,7 +59,29 @@ var app =http.createServer(function(request, response) {
                 });
             });
         }    
-    }else {
+    } else if (pathname == '/create') {
+        fs.readdir('./data', 'utf8', function(err, filelist) {
+            //response.end(title);
+            var title = "WEB_CREATE"
+                //decription 읽은  파일  정보
+            var list = templatelist(filelist); 
+            response.writeHead(200);
+            response.end(templatehtml(title, list,`
+                <form action="http://localhost:3000/create_process" method="post">
+                <p><input type = "text" name ="title" placeholder ="title"> </p>
+                <p>
+                    <textarea name = "description" placeholder = "description"></textarea>
+                </p>
+                <p>
+                    <input type="submit" value="저장">
+                </p>
+                </form>   
+                `));
+            });
+    } else if (pathname == '/create_process') {
+        response.writeHead(200);
+        response.end("sucess");
+    } else {
         response.writeHead(404);
         response.end('Not Found');
     }
