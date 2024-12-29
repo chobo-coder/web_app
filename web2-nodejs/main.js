@@ -1,8 +1,10 @@
 var http = require('http');
 var fs = require('fs');
 var url = require('url');
+var qs = require('querystring');
+
 const { brotliDecompress } = require('zlib');
-function templatehtml(title, list, body) {
+function templatehtml(title, list, body, control) {
     return `
     <!doctype html>
     <html>
@@ -13,7 +15,7 @@ function templatehtml(title, list, body) {
         <body>
             <h1><a href="/">WEB</a>
             ${list}
-            <a href = "/create">create</a>
+            ${control}
             ${body}   
         </body>
     </html>
@@ -46,7 +48,7 @@ var app =http.createServer(function(request, response) {
                 var list = templatelist(filelist); 
                 var body = `<p>Welcome node js </p>`;
                 response.writeHead(200);
-                response.end(templatehtml(title, list,`<h2>${title}</h2> <p>Welcome node js </p>`));
+                response.end(templatehtml(title, list,`<h2>${title}</h2> <p>Welcome node js </p>`,`<a href="/create">create</a>`));
                 });
                 console.log(__dirname + _url);
         } else {
@@ -55,7 +57,12 @@ var app =http.createServer(function(request, response) {
                 fs.readFile(`data/${_quertData.id}`, function(err, description) {
                     var title = _quertData.id;
                 response.writeHead(200);
-                response.end(templatehtml(title, list, `<h2>${title}</h2> <p>${description}</p>` ));
+                response.end(templatehtml(title, list, `<h2>${title}</h2> <p>${description}</p>`,
+                `<a href="/create">create</a> <a href = "/update?id=${title}">update</a>
+                <form action = "delete_process" method ="post" onsubmit="return confirm('it will be deleted do you confirm?');">
+                    <input type = "hidden" name ="id" value="${title}">
+                    <input type="submit" value="delete">
+                </form> `));
                 });
             });
         }    
@@ -67,7 +74,7 @@ var app =http.createServer(function(request, response) {
             var list = templatelist(filelist); 
             response.writeHead(200);
             response.end(templatehtml(title, list,`
-                <form action="http://localhost:3000/create_process" method="post">
+                <form action="/create_process" method="post">
                 <p><input type = "text" name ="title" placeholder ="title"> </p>
                 <p>
                     <textarea name = "description" placeholder = "description"></textarea>
@@ -76,11 +83,79 @@ var app =http.createServer(function(request, response) {
                     <input type="submit" value="저장">
                 </p>
                 </form>   
-                `));
+                `,``));
             });
+    } else if (pathname == '/update') {
+        fs.readdir('./data','utf8',function(err, filelist){
+            fs.readFile(`data/${_quertData.id}`, 'utf8', function(err,description){
+                var title = _quertData.id;
+                var list = templatelist(filelist);
+                response.writeHead(200);
+                response.end(templatehtml(title, list,`
+                <h2>${title}</h2> 
+                    <form action="/update_process" method="post">
+                <p><input type = "hidden" name ="id" value="${title}"> </p>
+                <p><input type = "text" name ="title" value="${title}"> </p>
+                <p>
+                    <textarea name = "description" placeholder = "description">${description}</textarea>
+                </p>
+                <p>
+                    <input type="submit" value="update">
+                </p>
+                </form>   
+                `,``));
+        })
+
+        })
     } else if (pathname == '/create_process') {
-        response.writeHead(200);
-        response.end("sucess");
+        var body = '';
+        request.on('data', function(data) {
+            body += data;
+            console.log(body);
+        });
+        request.on('end', function() {
+            var post = qs.parse(body);
+            var title = post.title;
+            var description = post.description;
+            console.log(title, description);
+            fs.writeFile(`data/${title}`, description, 'utf8', function(err){
+                response.writeHead(302,{Location: `/?id=${title}`});
+                response.end();
+            })
+        });
+    } else if (pathname == '/update_process') {
+        var body = '';
+        request.on('data', function(data) {
+            body += data;
+            console.log(body);
+        });
+        request.on('end', function() {
+            var post = qs.parse(body);
+            var id = post.id;
+            var title = post.title;
+            var description = post.description;
+            console.log(title, description);
+            fs.rename(`data/${id}`, `data/${title}`, function(err) {
+                fs.writeFile(`data/${title}`, description, 'utf8', function(err){
+                    response.writeHead(302,{Location: `/?id=${title}`});
+                    response.end();
+                });
+            });
+        });
+    } else if (pathname == '/delete_process') {
+        var body = '';
+        request.on('data', function(data) {
+            body += data;
+            console.log(body);
+        });
+        request.on('end', function() {
+            var post = qs.parse(body);
+            var id = post.id;
+            fs.unlink(`data/${id}`, function(err){
+                response.writeHead(302,{Location: `/`});
+                response.end();
+            })
+        });
     } else {
         response.writeHead(404);
         response.end('Not Found');
