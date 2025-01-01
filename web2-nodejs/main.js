@@ -2,36 +2,7 @@ var http = require('http');
 var fs = require('fs');
 var url = require('url');
 var qs = require('querystring');
-
-const { brotliDecompress } = require('zlib');
-function templatehtml(title, list, body, control) {
-    return `
-    <!doctype html>
-    <html>
-        <head>
-            <title>WEB1 - ${title}</title>
-            <meta charset="utf-8">
-        </head>
-        <body>
-            <h1><a href="/">WEB</a>
-            ${list}
-            ${control}
-            ${body}   
-        </body>
-    </html>
-    `;
-}
-
-function templatelist(filelist) {
-    var i = 0;
-    var list = `<ul>`;
-    while (i<filelist.length){
-        list += `<li><a href="/?id=${filelist[i]}">${filelist[i]}</a></li>`;
-        i++;
-    }
-    list += `</ul>`;
-    return list;
-}
+var template = require('./lib/template.js');
 
 var app =http.createServer(function(request, response) {
     var _url = request.url;
@@ -45,19 +16,19 @@ var app =http.createServer(function(request, response) {
                 //response.end(title);
                 var title = "Welcome"
                     //decription 읽은  파일  정보
-                var list = templatelist(filelist); 
+                var list = template.LIST(filelist); 
                 var body = `<p>Welcome node js </p>`;
                 response.writeHead(200);
-                response.end(templatehtml(title, list,`<h2>${title}</h2> <p>Welcome node js </p>`,`<a href="/create">create</a>`));
+                response.end(template.HTML(title, list,`<h2>${title}</h2> <p>Welcome node js </p>`,`<a href="/create">create</a>`));
                 });
                 console.log(__dirname + _url);
         } else {
             fs.readdir('./data', 'utf8', function(err, filelist) {
-                var list = templatelist(filelist); 
+                var list = template.LIST(filelist); 
                 fs.readFile(`data/${_quertData.id}`, function(err, description) {
                     var title = _quertData.id;
                 response.writeHead(200);
-                response.end(templatehtml(title, list, `<h2>${title}</h2> <p>${description}</p>`,
+                response.end(template.HTML(title, list, `<h2>${title}</h2> <p>${description}</p>`,
                 `<a href="/create">create</a> <a href = "/update?id=${title}">update</a>
                 <form action = "delete_process" method ="post" onsubmit="return confirm('it will be deleted do you confirm?');">
                     <input type = "hidden" name ="id" value="${title}">
@@ -71,9 +42,9 @@ var app =http.createServer(function(request, response) {
             //response.end(title);
             var title = "WEB_CREATE"
                 //decription 읽은  파일  정보
-            var list = templatelist(filelist); 
+            var list = template.LIST(filelist); 
             response.writeHead(200);
-            response.end(templatehtml(title, list,`
+            response.end(template.HTML(title, list,`
                 <form action="/create_process" method="post">
                 <p><input type = "text" name ="title" placeholder ="title"> </p>
                 <p>
@@ -89,9 +60,9 @@ var app =http.createServer(function(request, response) {
         fs.readdir('./data','utf8',function(err, filelist){
             fs.readFile(`data/${_quertData.id}`, 'utf8', function(err,description){
                 var title = _quertData.id;
-                var list = templatelist(filelist);
+                var list = template.LIST(filelist);
                 response.writeHead(200);
-                response.end(templatehtml(title, list,`
+                response.end(template.HTML(title, list,`
                 <h2>${title}</h2> 
                     <form action="/update_process" method="post">
                 <p><input type = "hidden" name ="id" value="${title}"> </p>
