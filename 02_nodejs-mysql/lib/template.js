@@ -9,6 +9,7 @@ module.exports = {
             </head>
             <body>
                 <h1><a href="/">WEB</a></h1>
+                <h2><a href="/author">author</a></h2>
                 ${list}
                 ${control}
                 ${body}
@@ -42,5 +43,30 @@ module.exports = {
                 ${tg}
             </select>
         `
+    },
+    maketable:function(author){
+            var tag = '<table>';
+            var aut = 0; 
+            while (aut< author.length ){
+                tag += `<tr>
+                <td>${author[aut].name}</td>
+                <td>${author[aut].profile}</td>
+                <td><a href="/author/update?id=${author[aut].id}">update</a></td> 
+                <td><a href ="/author/delete_process?id=${author[aut].id}">delete</a></td>
+                </tr>`;
+                aut++;
+            }
+            tag += '</table>'
+            tag += `
+            <style>
+            table {
+                border-collapse: collapse;
+            }
+            td {
+                border: 1px solid black;
+            }
+            </style>
+            `;
+            return tag;
     }
 }
