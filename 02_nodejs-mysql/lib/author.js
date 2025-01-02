@@ -110,3 +110,13 @@ exports.updateprocess = function(request, response){
             });
     });
 }
+exports.deleteprocess = function(request, response){
+    var _url = request.url;
+    var queryData = url.parse(_url, true).query;
+    db.query(`delete from author where id = ${queryData.id}`,
+        function(err, result){
+            if(err) throw err;
+            response.writeHead(302, {Location: `/author`});
+            response.end();
+        });
+}
