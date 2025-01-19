@@ -1,8 +1,44 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-}
 
 a {
   color: #00B7FF;
+}
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f9;
+}
+
+.dut {
+  display: flex;
+  flex-wrap: wrap;
+  background-color: bisque;
+  width: 1300px;
+  padding: 20px;
+}
+
+.lbanks, .rbranks, .ubanks, .dbanks {
+  margin: 1px;
+  background-color: #007BFF;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+}
+
+.bg {
+  margin: 2px;
+  background-color:grey; 
+  color: white;
+  border-color: black;
+  display: flex;
+}
+
+.ba {
+  margin: 2px;
+  background-color:lightpink; 
+  color: white;
+  border-color: black;
+  display: flex;
 }
