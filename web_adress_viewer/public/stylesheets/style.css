@@ -41,4 +41,5 @@ body {
   color: white;
   border-color: black;
   display: flex;
+  cursor: pointer;
 }

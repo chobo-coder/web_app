@@ -7,6 +7,8 @@ var db_afr = require('../lib/db_afr.js');
 
 console.log(d_struct)
 console.log(dsize)
+
+
 router.get('/', function(req, res, next) {
   var sql = `select * from afr_table`;
   db_afr.query(sql, function(err,data,field){
